@@ -1,0 +1,123 @@
+1、在视觉模型中，每一个元素对应的盒子在网页中的布局有下面几个方面控制
+		（1）、盒模型和盒子类型
+		（2）、pisitioning scheme
+		（3）、document tree 上元素之间的关系
+		（4）、额外的影响因素，比如视口viewport
+2、什么是盒子类型？
+	盒子类型会影响盒子的行为，具体来讲，盒子的类型由display属性描述和控制。
+	2.1块级元素和块级盒子（Block-level elements and block boxes）
+		块级元素是指布局是被当做“块”来布置的元素。display：block|list-item|table可以让一个元素成为块级元素、
+		块级盒子参与的是块级格式化上下文（BFC）。每一个块级元素都会生成一个块级盒子，这个块级盒子也许包含了一些子代盒子或者内容，这些盒子同时也会处于格式化上下文中（FC）。
+
+		除了表格盒子，每个块级盒子都会是一个块级容器。块级容器并不是只包含块级盒子或者因为建立了一个IFC而只包含行内级盒子。但是过来，块级容器并不一定是块级盒子。
+		块级盒子、块级容器、块盒（？？？）有时候会被混淆
+	2.2匿名盒子
+		<DIV>
+		  Some text
+		  <P>More text<P>
+		</DIV>
+		像上面的结构所示，div中同时含有行内内容和块级内容，为了方便定义这个格式，我们假设在some text的周围有一个匿名块级盒子。换句话说：如果一个块级容器中含有块级盒子，那我们就强制其中只能含有块级盒子。
+
+		当一个行内盒子包含一个处于流中的块级盒子时，这个行内容器会被这个块级盒子分裂开，块级盒子的两边会生成匿名盒子。当这样的一个行内盒子被相对定位影响时，结果同样会影响到里面的块级盒子。
+
+		p    { display: inline }
+		span { display: block }
+		<BODY>
+			<P>
+			This is anonymous text before the SPAN.
+			<SPAN>This is the content of SPAN.</SPAN>
+			This is anonymous text after the SPAN.
+			</P>
+		</BODY>
+		比如上面的结构，最终的盒子模型就是，一个代表body的块级盒子，里面包含一个匿名盒子包裹着第一段文本，然后是一个代表span的块级盒子，接下来是另一个匿名盒子包裹着最后一段文本
+		匿名盒子的属性继承自离他最近的非匿名盒子，不能继承的属性则自带初始值，比如，上面的结构，第一个匿名盒子的字体属性继承自body，而margin无法继承，所以带有初始值0。
+		上面的例子，使P元素产生匿名盒子的属性同样会作用于匿名盒子和元素里的内容。例如，假如给P元素加上border属性，那么这个border属性同样会作用于P内部的两个匿名盒子
+
+		2.3 Inline-level elements and inline boxes
+			行内元素不会为内容生成新的块，它们内部的内容直接按照行来分布。行内元素会生成行内盒子，这些行内盒子参与的是IFC。display属性设为inline/inline-table/inline-block会使一个元素成为一个行内元素。
+			行内盒子的内容会按照行来排布。。。。。
+
+			inline boxes中的匿名盒子：
+				Any text that is directly contained inside a block container element (not inside an inline element) must be treated as an anonymous inline element.
+				块级容器中直接含有的文本会被当成一个匿名的行内元素。这样的匿名inline boxes的可继承属性会继承自它们的块级祖先盒子，不可继承的则自带初始值。
+
+				空格会被折叠，所以不会生成匿名盒子。
+
+				匿名块级盒子和匿名行内盒子都被叫做匿名盒子。
+
+	display属性：
+		可选的属性值有：	inline | block | list-item | inline-block | table | inline-table | table-row-group | table-header-group | table-footer-group | table-row | table-column-group | table-column | table-cell | table-caption | none | inherit
+
+	position schemes：定位策略
+		一个盒子可以根据三种定位策略来渲染
+			1. normal flow ：普通流。在css2中，普通流包括处于BFC中的块级盒子、处于IFC中的行内盒子，还有相对定位的块级和行内盒子。
+			2.floats ：在浮动模式下，盒子首先会按照普通流来渲染，然后跳出普通流，尽可能的左右移动。
+			3.absolute position :在绝对定位模式下，盒子会完全脱离普通流，它的位置会相对于包含容器来定位（ assigned a position with respect to a containing block），此时，绝对定位的盒子对兄弟盒子没有影响。
+
+			如果一个元素浮动或者绝对定位，或者是一个根元素，那么说这个元素是脱离普通流的（out of flow），剩下的都叫处于普通流中的（in-flow）
+
+		通过position属性来选择定位策略：
+			position属性有五个值：static、relative、absolute、fixed、inherit
+
+			static、relative：此时盒子都会处在流中。relative的盒子，它的位置会相对于它正常模式下的位置来根绝top、left、bottom、right属性进行移动。
+
+			absolute、fixed：fixed是absolute的子类，fixed元素的定位会根据absolute来计算，只不过，fixed盒子会有一些参照，比如视口（viewport），此时，盒子不会因为鼠标滚动而移动
+
+		盒子的相对位置：top、right、bottom、left
+			如果一个元素的position属性为除static意外的值，那么称这个元素为定位元素，这个时候，由此定位元素生成的定位盒子，其渲染会参照top、right、bottom、left这四个属性值
+
+		普通流（normal flow）：
+			处于普通流中的盒子都会属于一个FC（formatting context），要么是BFC，要么是IFC，但不会两者都是。块级盒子参与的是BFC，行内盒子参与的是IFC
+
+			Block formatting contexts：BFC
+				什么情况下回产生BFC：
+					1.float不为none
+					2.position不为static、relative
+					3.display为inline-blocks、table-cells、table-captions
+					4、overflow不为visible
+				在以上这些条件下的盒子都会为自己的内容创建一个新的BFC。
+
+			在BFC中，盒子都是从包含容器（containing block）顶部开始，从上至下一个接一个垂直的排列。两个相邻盒子之间的垂直距离由margin属性来决定。在同一个BFC中，相邻的块级盒子中间的margin会折叠。
+			在BFC中，每个盒子左边都会紧靠包含容器的左边缘（如果是右布局的话则靠近右边缘）。
+
+			Inline formatting contexts：IFC
+				在IFC中，盒子都是从包含容器头部开始水平的一个接一个的排列的。水平方向的margin、border、padding控制着两盒子之间的距离。
+				处于同一样的盒子构成一个矩形区域，叫line box。
+				line box的宽度由浮动情况和它的包含快决定。line box的高度由line-height的计算结果决定。
+				对于所包含的所有盒子来说，line box总是足够高的，也许它比包含在内部的最高的盒子还要高。对于盒子B来讲，如果B比包含它的line box高度低，那么B在line box中的垂直线通过vertical align属性控制。如果几个行内级盒子在一个单独的line box中不能完全放置下是，他们就会被分配成2个或更多的垂直相邻的line boxes。因此，可以说，一个段落是多个line boxes的垂直排布。在垂直方向上，line boxes是没有分离的。
+				通常，line box的左边缘紧挨着它的包含块的左边缘，右边缘紧挨着它的包含快的右边缘。然而浮动盒子也许会在包含快边缘和line box边缘之间。因此，尽管line boxes在同样的行内格式上下文中通常都有相同的宽度（就是它的包含块的宽度），但是在水平方向的空间因为浮动被减少了，它的宽度也会变得复杂。line boxes在同样的行内格式上下文中，通常在高度上是多样的，（比如一行也许包含了一个最高的图片，而其他的可能只含有文字）。
+				当在一行中的行内级盒子的总宽度比包含他们的line box的宽度小，则他们在line box的水平位置由text-align属性决定。如果属性是justify，用户代理可能会拉伸空间和文字。
+
+				如果一个行内盒子超过了line box的宽度，那么这个行内盒子会被分割成几个盒子，并且分割发生处的margin、border、padding没有视觉效果。
+				在IFC中，line boxes被创建用来盛装行内内容
+				Line boxes that contain no text, no preserved white space, no inline elements with non-zero margins, padding, or borders, and no other in-flow content (such as images, inline blocks or inline tables), and do not end with a preserved newline must be treated as zero-height line boxes for the purposes of determining the positions of any elements inside of them, and must be treated as not existing for any other purpose.
+
+				<P>Several <EM>emphasized words</EM> appear
+				<STRONG>in this</STRONG> sentence, dear.</P>
+				 上面的例子中，P生成了一个块级容器，这个容器中包含了5个行内盒子，其中的三个是匿名的。
+				Anonymous: "Several"
+				EM: "emphasized words"
+				Anonymous: "appear"
+				STRONG: "in this"
+				Anonymous: "sentence, dear."
+				为了形成一个段落，user agent会把这五个盒子放进line boxes中。在这个例子中，P生成的块级容器又包含着line boxes，如果这个块级容器足够宽，那么这些行内盒子会都放进同一个line box中，最终向下面那样呈现：
+					Several emphasized words appear in this sentence, dear.
+				如果P生成块级盒子不够宽，那么这五个行内盒子可能就会被分割，并被分配到几个不同的line boxes中，例如：
+					(1)Several emphasized words appear
+					in this sentence, dear.
+				或者这样：
+					(2)Several emphasized  
+					words appear in this 
+					sentence, dear.
+					 EM {
+				        padding: 2px; 
+				        margin: 1em;
+				        border-width: medium;
+				        border-style: dashed;
+				        line-height: 2.4em;
+				      }
+					在(2)这种情况下，em box被分成两部分，在分割处，margin、border、padding、或者text decoration没有视觉效果
+
+
+					
+					江苏省 南京市 雨花台区 软件大道 66号 华通科技园3F
