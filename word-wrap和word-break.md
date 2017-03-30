@@ -1,6 +1,6 @@
 今天说下css中的断词，主要用到下面两个属性`word-break`和`word-wrap`.
 
-![QQ截图20160523145733.png-44.5kB](http://www.alloyteam.com/wp-content/uploads/auto_save_image/2016/05/104717l1Y.png)
+![Alt text](./img/104717l1Y.png)
 
 看上面这张图，`word-break`和`word-wrap`解决的就是此类问题
 
