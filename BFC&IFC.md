@@ -181,7 +181,7 @@ BFC清除浮动。
 
 由于子元素为浮动元素，处在另一个BFC中，所以父元素也就无法被撑开（BFC之间相互不影响），解决方法就是为父元素加上`overflow:hidden`(计算BFC的高度时，浮动元素也参与其中)。显示效果如下：
 
-![Alt text](./img/201702121736.png)
+![父元素无法被撑开](./img/201901100958.png)![Alt text](./img/201702121736.png)
 
 ##### IFC: Inline Formatting Context
 
